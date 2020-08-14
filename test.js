@@ -1,6 +1,7 @@
 const { connect, Cache } = require('./db')
 
 const start = async () => {
+  connect()
   await Cache.insertMany([
     {
       base: 'http://www.imomoe.in/view/7663.html',
