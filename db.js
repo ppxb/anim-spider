@@ -1,14 +1,24 @@
 const mongoose = require('mongoose')
-const DB_URL = 'mongodb://localhost/anim'
+const DB_URL = 'mongodb://localhost/anime'
 
-const animSchema = new mongoose.Schema({
+const animeSchema = new mongoose.Schema({
   title: String,
   url: String,
   count: Number,
   links: Array,
 })
 
-const Anim = mongoose.model('Anims', animSchema)
+const cacheSchema = new mongoose.Schema({
+  base: String,
+  url: String,
+  complete: {
+    type: Boolean,
+    default: false,
+  },
+})
+
+const Anime = mongoose.model('Animes', animeSchema)
+const Cache = mongoose.model('Caches', cacheSchema)
 
 const connect = () => {
   mongoose.connect(
@@ -29,5 +39,6 @@ const disconnect = () => {
 module.exports = {
   connect,
   disconnect,
-  Anim,
+  Anime,
+  Cache,
 }

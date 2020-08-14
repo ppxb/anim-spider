@@ -37,12 +37,11 @@ const getVideo = () => {
           links: [],
         })
       })
-      done()
     }, 10)
 
-    for (let i = 0; i < 1; i++) {
-      q.push(searchUrl + (i + 1), () => {
-        console.log(`完成抓取动画入口页： ${searchUrl + (i + 1)}`)
+    for (let i = 1; i < 20; i++) {
+      q.push(searchUrl + i, () => {
+        console.log(`完成抓取动画入口页： ${searchUrl + i}`)
       })
     }
 
@@ -56,17 +55,22 @@ const getVideo = () => {
 const getDetail = videos => {
   return new Promise((resolve, reject) => {
     const q = async.queue(
-      async ({ title: videoTitle, url: videoUrl, links, count }) => {
+      async ({ title: videoTitle, url: videoUrl, links, count }, done) => {
         const $ = await parse(videoUrl)
-        $('#play_0 li').each((i, e) => {
-          const item = $(e).find('a').eq(0)
-          const linkName = item.text()
-          const linkUrl = baseUrl + item.attr('href')
-          links.push({ name: linkName, url: linkUrl })
-          console.log(
-            `爬取完成------${videoTitle}------${linkName}------${linkUrl}`
-          )
-        })
+        const wrapper = $('#play_0 li')
+        if (wrapper.length < 4) {
+          done()
+        } else {
+          wrapper.each((i, e) => {
+            const item = $(e).find('a').eq(0)
+            const linkName = item.text()
+            const linkUrl = baseUrl + item.attr('href')
+            links.push({ name: linkName, url: linkUrl })
+            console.log(
+              `爬取完成------${videoTitle}------${linkName}------${linkUrl}`
+            )
+          })
+        }
       },
       10
     )
@@ -103,13 +107,9 @@ const getSrc = async list => {
       console.log('------------------ 视频源文件页爬取完成 ------------------')
     })
 
-    // for (let i = 0; i < list.length; i++) {
-    //   q.push(list[i].links, () => console.log(`当前爬取目标：${list[i].title}`))
-    // }
-
-    q.push(list[0].links, () => console.log(`当前爬取目标：${list[0].title}`))
-    q.push(list[1].links, () => console.log(`当前爬取目标：${list[1].title}`))
-    q.push(list[2].links, () => console.log(`当前爬取目标：${list[2].title}`))
+    for (let i = 0; i < list.length; i++) {
+      q.push(list[i].links, () => console.log(`当前爬取目标：${list[i].title}`))
+    }
   })
 }
 
