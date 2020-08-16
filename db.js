@@ -9,12 +9,12 @@ const animeSchema = new mongoose.Schema({
 })
 
 const cacheSchema = new mongoose.Schema({
-  base: String,
+  title: String,
   url: String,
-  complete: {
-    type: Boolean,
-    default: false,
-  },
+  link: String,
+  name: String,
+  src: String,
+  status: String,
 })
 
 const Anime = mongoose.model('Animes', animeSchema)
