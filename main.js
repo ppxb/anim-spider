@@ -2,7 +2,7 @@ const superagent = require('superagent')
 const cheerio = require('cheerio')
 const async = require('async')
 const charset = require('superagent-charset')
-const { connect, Anime } = require('./db')
+const { connect, Anime, disconnect } = require('./db')
 
 charset(superagent)
 
@@ -126,7 +126,7 @@ const save = async data => {
   }, 10)
 
   q.drain(async () => {
-    await Anime.deleteMany({ delete: true })
+    await Anime.deleteMany({ delete: true }, () => disconnect())
     console.log('------------------ 动画数据存储完成 ------------------')
   })
 

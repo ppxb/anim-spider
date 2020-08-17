@@ -31,7 +31,7 @@ const connect = () => {
 }
 
 const disconnect = () => {
-  mongoose.disconnect()
+  mongoose.disconnect(() => console.log('已从数据库断开连接'))
 }
 
 module.exports = {
