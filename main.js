@@ -107,8 +107,7 @@ const save = async data => {
 
     item.links = videoJson.map(i => {
       const video = i.split('$')
-      const name = video[0]
-      const link = video[1]
+      const [name, link] = video
       if (
         link.substring(link.lastIndexOf('.') + 1) !== 'mp4' &&
         link.indexOf('quan.qq.com') < 0
@@ -139,4 +138,5 @@ const bootstrap = async () => {
   const pending = await scrapy(animes)
   await save(pending)
 }
+
 bootstrap()
