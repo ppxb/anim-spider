@@ -1,24 +1,22 @@
 const mongoose = require('mongoose')
-const DB_URL = 'mongodb://localhost/anime'
+const DB_URL = 'mongodb://localhost/animes'
 
-const animeSchema = new mongoose.Schema({
-  title: String,
-  url: String,
-  count: Number,
-  links: Array,
-})
-
-const cacheSchema = new mongoose.Schema({
-  title: String,
-  url: String,
-  link: String,
-  name: String,
-  src: String,
-  status: String,
-})
+const animeSchema = new mongoose.Schema(
+  {
+    title: String,
+    id: String,
+    count: Number,
+    videoJson: String,
+    links: Array,
+    delete: {
+      type: Boolean,
+      default: false,
+    },
+  },
+  { versionKey: false }
+)
 
 const Anime = mongoose.model('Animes', animeSchema)
-const Cache = mongoose.model('Caches', cacheSchema)
 
 const connect = () => {
   mongoose.connect(
@@ -40,5 +38,4 @@ module.exports = {
   connect,
   disconnect,
   Anime,
-  Cache,
 }

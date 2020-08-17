@@ -2,6 +2,7 @@ const superagent = require('superagent')
 const cheerio = require('cheerio')
 const async = require('async')
 const charset = require('superagent-charset')
+const { connect, Anime } = require('./db')
 
 charset(superagent)
 
@@ -91,25 +92,51 @@ const scrapy = items => {
   })
 }
 
-const clean = async data => {
-  const videoJsonUrl = BASE_URL + data[0].videoJson
-  console.log(data[0].title)
-  const $ = await parseJson(videoJsonUrl)
-  const json = $.split(',').slice()
-  const videoJson = JSON.parse(
-    json
-      .slice(0, json.length - 1)
-      .join(',')
-      .split('=')[1]
-      .replace(/'/g, '"')
-  )
+const save = async data => {
+  const q = async.queue(async item => {
+    const videoJsonUrl = BASE_URL + item.videoJson
+    const $ = await parseJson(videoJsonUrl)
+    const json = $.split(',').slice()
+    const videoJson = JSON.parse(
+      json
+        .slice(0, json.length - 1)
+        .join(',')
+        .split('=')[1]
+        .replace(/'/g, '"')
+    )[0][1]
 
-  // test.js 取对应集数的文件
+    item.links = videoJson.map(i => {
+      const video = i.split('$')
+      const name = video[0]
+      const link = video[1]
+      if (
+        link.substring(link.lastIndexOf('.') + 1) !== 'mp4' &&
+        link.indexOf('quan.qq.com') < 0
+      ) {
+        item.delete = true
+      }
+      return { name, link }
+    })
+
+    console.log(
+      `${item.title}------${item.id}-----${item.count}集-----存储完成`
+    )
+
+    await Anime.findOneAndUpdate({ id: item.id }, item, { upsert: true })
+  }, 10)
+
+  q.drain(async () => {
+    await Anime.deleteMany({ delete: true })
+    console.log('------------------ 动画数据存储完成 ------------------')
+  })
+
+  q.push(data)
 }
 
 const bootstrap = async () => {
+  connect()
   const animes = await create()
   const pending = await scrapy(animes)
-  await clean(pending)
+  await save(pending)
 }
 bootstrap()
